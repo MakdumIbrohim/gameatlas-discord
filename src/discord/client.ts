@@ -29,7 +29,7 @@ export function createClient(): Client {
   const client = new Client({ intents: [GatewayIntentBits.Guilds] });
   const commandCollection = buildCommandCollection();
 
-  client.once("ready", (c) => {
+  client.once("clientReady", (c) => {
     logger.info(`Logged in as ${c.user.tag}`);
   });
 
