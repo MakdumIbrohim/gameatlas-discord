@@ -41,7 +41,8 @@ const mockSuccessResponse = {
 describe('sendMessageToLangflow', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockedAxios.isAxiosError = jest.fn().mockReturnValue(false);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (mockedAxios.isAxiosError as any) = jest.fn().mockReturnValue(false);
   });
 
   it('returns the AI text on success', async () => {
@@ -70,7 +71,7 @@ describe('sendMessageToLangflow', () => {
   it('throws TimeoutError on ECONNABORTED', async () => {
     const timeoutErr = Object.assign(new Error('timeout'), { code: 'ECONNABORTED' });
     mockedAxios.post.mockRejectedValueOnce(timeoutErr);
-    mockedAxios.isAxiosError.mockReturnValue(true);
+    (mockedAxios.isAxiosError as any) = jest.fn().mockReturnValue(true);
 
     await expect(sendMessageToLangflow('test', 'session-1')).rejects.toBeInstanceOf(TimeoutError);
   });
@@ -81,7 +82,7 @@ describe('sendMessageToLangflow', () => {
       response: { status: 500 },
     });
     mockedAxios.post.mockRejectedValueOnce(axiosErr);
-    mockedAxios.isAxiosError.mockReturnValue(true);
+    (mockedAxios.isAxiosError as any) = jest.fn().mockReturnValue(true);
 
     await expect(sendMessageToLangflow('test', 'session-1')).rejects.toBeInstanceOf(LangflowError);
   });

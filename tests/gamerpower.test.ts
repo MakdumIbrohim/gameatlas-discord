@@ -55,7 +55,8 @@ const mockGiveaways: Giveaway[] = [
 describe('getGiveaways', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockedAxios.isAxiosError = jest.fn().mockReturnValue(false);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (mockedAxios.isAxiosError as any) = jest.fn().mockReturnValue(false);
   });
 
   it('returns only active giveaways', async () => {
@@ -86,7 +87,7 @@ describe('getGiveaways', () => {
   it('throws TimeoutError on ECONNABORTED', async () => {
     const timeoutErr = Object.assign(new Error('timeout'), { code: 'ECONNABORTED' });
     mockedAxios.get.mockRejectedValueOnce(timeoutErr);
-    mockedAxios.isAxiosError.mockReturnValue(true);
+    (mockedAxios.isAxiosError as any) = jest.fn().mockReturnValue(true);
 
     await expect(getGiveaways()).rejects.toBeInstanceOf(TimeoutError);
   });
@@ -97,7 +98,7 @@ describe('getGiveaways', () => {
       response: { status: 503 },
     });
     mockedAxios.get.mockRejectedValueOnce(axiosErr);
-    mockedAxios.isAxiosError.mockReturnValue(true);
+    (mockedAxios.isAxiosError as any) = jest.fn().mockReturnValue(true);
 
     await expect(getGiveaways()).rejects.toBeInstanceOf(GamerPowerError);
   });
