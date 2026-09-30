@@ -1,8 +1,14 @@
-import { Client, Collection, GatewayIntentBits, ChatInputCommandInteraction, Interaction } from 'discord.js';
-import { logger } from '../utils/logger';
-import * as freegamesCommand from './commands/freegames';
-import * as askCommand from './commands/ask';
-import * as helpCommand from './commands/help';
+import {
+  Client,
+  Collection,
+  GatewayIntentBits,
+  ChatInputCommandInteraction,
+  Interaction,
+} from "discord.js";
+import { logger } from "../utils/logger";
+import * as freegamesCommand from "./commands/freegames";
+import * as askCommand from "./commands/ask";
+import * as helpCommand from "./commands/help";
 
 export interface Command {
   data: { name: string; toJSON: () => unknown };
@@ -23,11 +29,11 @@ export function createClient(): Client {
   const client = new Client({ intents: [GatewayIntentBits.Guilds] });
   const commandCollection = buildCommandCollection();
 
-  client.once('ready', (c) => {
+  client.once("ready", (c) => {
     logger.info(`Logged in as ${c.user.tag}`);
   });
 
-  client.on('interactionCreate', async (interaction: Interaction) => {
+  client.on("interactionCreate", async (interaction: Interaction) => {
     if (!interaction.isChatInputCommand()) return;
 
     const command = commandCollection.get(interaction.commandName);
@@ -39,16 +45,21 @@ export function createClient(): Client {
     try {
       await command.execute(interaction);
     } catch (err) {
-      logger.error('Unhandled command error', {
+      logger.error("Unhandled command error", {
         command: interaction.commandName,
         error: String(err),
       });
 
-      const errorMsg = '⚠️ Terjadi kesalahan tak terduga. Coba lagi beberapa saat.';
+      const errorMsg =
+        "⚠️ Terjadi kesalahan tak terduga. Coba lagi beberapa saat.";
       if (interaction.deferred || interaction.replied) {
-        await interaction.editReply({ content: errorMsg }).catch(() => undefined);
+        await interaction
+          .editReply({ content: errorMsg })
+          .catch(() => undefined);
       } else {
-        await interaction.reply({ content: errorMsg, ephemeral: true }).catch(() => undefined);
+        await interaction
+          .reply({ content: errorMsg, ephemeral: true })
+          .catch(() => undefined);
       }
     }
   });
