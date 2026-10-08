@@ -3,7 +3,11 @@ import {
   SlashCommandBuilder,
 } from 'discord.js';
 import { sendMessageToLangflow } from '../../services/langflow';
-import { buildAiResponseEmbed, buildErrorEmbed } from '../formatters/gameEmbed';
+import {
+  buildAiResponseEmbed,
+  buildErrorEmbed,
+  buildStructuredGameEmbed,
+} from '../formatters/gameEmbed';
 import { logger } from '../../utils/logger';
 import { LangflowError, TimeoutError } from '../../utils/errors';
 
@@ -26,14 +30,22 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
   try {
     await interaction.editReply({ content: '🔎 Sedang mencari game gratis...' });
 
-    const aiResponse = await sendMessageToLangflow(query, sessionId);
-    const embed = buildAiResponseEmbed(aiResponse);
+    const result = await sendMessageToLangflow(query, sessionId);
 
-    await interaction.editReply({ content: null, embeds: [embed] });
+    if (result.kind === 'structured') {
+      // Langflow mengembalikan Structured Output (JSON) → render sebagai game embed
+      const { embeds, components } = buildStructuredGameEmbed(result.games);
+      await interaction.editReply({ content: null, embeds, components });
+    } else {
+      // Langflow mengembalikan plain text → render sebagai AI response embed
+      const embed = buildAiResponseEmbed(result.text);
+      await interaction.editReply({ content: null, embeds: [embed] });
+    }
 
     logger.info('ask command responded', {
       userId: interaction.user.id,
       sessionId,
+      resultKind: result.kind,
     });
   } catch (err) {
     logger.error('ask command error', { error: String(err) });

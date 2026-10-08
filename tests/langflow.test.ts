@@ -45,11 +45,14 @@ describe('sendMessageToLangflow', () => {
     (mockedAxios.isAxiosError as any) = jest.fn().mockReturnValue(false);
   });
 
-  it('returns the AI text on success', async () => {
+  it('returns plain text result when response is not JSON', async () => {
     mockedAxios.post.mockResolvedValueOnce(mockSuccessResponse);
 
     const result = await sendMessageToLangflow('Cari game gratis Steam', 'discord-123');
-    expect(result).toBe('Ada beberapa game gratis di Steam sekarang!');
+    expect(result.kind).toBe('text');
+    if (result.kind === 'text') {
+      expect(result.text).toBe('Ada beberapa game gratis di Steam sekarang!');
+    }
     expect(mockedAxios.post).toHaveBeenCalledWith(
       'http://localhost:7860/api/v1/run/test-flow-id',
       expect.objectContaining({
@@ -60,6 +63,21 @@ describe('sendMessageToLangflow', () => {
         headers: expect.objectContaining({ 'x-api-key': 'test-key' }),
       }),
     );
+  });
+
+  it('returns structured result when response is JSON with title field', async () => {
+    const jsonResponse = {
+      data: {
+        outputs: [{ outputs: [{ results: { message: { text: JSON.stringify({ title: 'Test Game', platform: 'Steam', type: 'game' }) } } }] }],
+      },
+    };
+    mockedAxios.post.mockResolvedValueOnce(jsonResponse);
+
+    const result = await sendMessageToLangflow('Cari game gratis Steam', 'discord-123');
+    expect(result.kind).toBe('structured');
+    if (result.kind === 'structured') {
+      expect(result.games[0]?.title).toBe('Test Game');
+    }
   });
 
   it('throws LangflowError when response text is missing', async () => {
