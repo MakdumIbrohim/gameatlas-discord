@@ -16,5 +16,5 @@ logs/
 Thumbs.db
 
 # IDE
-.vscode/
 .idea/
+.bob/
