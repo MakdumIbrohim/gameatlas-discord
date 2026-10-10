@@ -1,6 +1,7 @@
 import { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import { Giveaway } from '../../services/gamerpower';
 import { LangflowGameResult } from '../../services/langflow';
+import { GIF_ICONS } from '../constants/gifs';
 
 const GAMERPOWER_URL = 'https://www.gamerpower.com';
 const MAX_GAMES_PER_EMBED = 5;
@@ -29,6 +30,7 @@ export function buildGameEmbed(
       .setTitle(title)
       .setDescription('Belum menemukan giveaway yang sesuai.\nCoba platform atau kata kunci lain.')
       .setColor(0xe74c3c)
+      .setThumbnail(GIF_ICONS.SEARCH)
       .setFooter({ text: 'Powered by GamerPower • gameratlas.gg' })
       .setTimestamp();
 
@@ -40,6 +42,7 @@ export function buildGameEmbed(
   const embed = new EmbedBuilder()
     .setTitle(title)
     .setColor(0x2ecc71)
+    .setThumbnail(GIF_ICONS.GAME)
     .setFooter({ text: `Source: GamerPower (${GAMERPOWER_URL}) • Showing ${slice.length} of ${giveaways.length}` })
     .setTimestamp();
 
@@ -156,6 +159,7 @@ export function buildStructuredGameEmbed(games: LangflowGameResult[]): Structure
   const header = new EmbedBuilder()
     .setTitle('🎮 GameAtlas — Free Games')
     .setDescription(`Ditemukan **${games.length}** giveaway aktif. Menampilkan ${slice.length} teratas.`)
+    .setThumbnail(GIF_ICONS.GAME)
     .setColor(0x3498db);
 
   // Satu embed per game agar thumbnail tampil
@@ -186,6 +190,7 @@ export function buildAiResponseEmbed(aiText: string): EmbedBuilder {
     .setTitle('🎮 GameAtlas')
     .setDescription(aiText.slice(0, 4096))
     .setColor(0x3498db)
+    .setThumbnail(GIF_ICONS.AI)
     .setFooter({ text: `Source: GamerPower (${GAMERPOWER_URL})` })
     .setTimestamp();
 }
@@ -195,5 +200,6 @@ export function buildErrorEmbed(message: string): EmbedBuilder {
     .setTitle('⚠️ GameAtlas')
     .setDescription(message)
     .setColor(0xe74c3c)
+    .setThumbnail(GIF_ICONS.ERROR)
     .setTimestamp();
 }

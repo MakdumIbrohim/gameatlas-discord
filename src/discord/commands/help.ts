@@ -3,6 +3,7 @@ import {
   EmbedBuilder,
   SlashCommandBuilder,
 } from 'discord.js';
+import { GIF_ICONS } from '../constants/gifs';
 
 export const data = new SlashCommandBuilder()
   .setName('help')
@@ -12,6 +13,7 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
   const embed = new EmbedBuilder()
     .setTitle('🎮 GameAtlas — Help')
     .setDescription('Bot untuk menemukan game gratis dan giveaway dari berbagai platform.')
+    .setThumbnail(GIF_ICONS.HELP)
     .addFields(
       {
         name: '`/freegames`',

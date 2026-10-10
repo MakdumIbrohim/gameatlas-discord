@@ -6,6 +6,7 @@ import {
   TextChannel,
 } from 'discord.js';
 import { getGuildConfig, setGuildConfig } from '../../services/guildConfig';
+import { GIF_ICONS } from '../constants/gifs';
 import { logger } from '../../utils/logger';
 
 export const data = new SlashCommandBuilder()
@@ -66,6 +67,7 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
       .setTitle('✅ Channel Notifikasi Diset')
       .setDescription(`Notifikasi game gratis harian akan dikirim ke <#${channel.id}>.\n\nAktifkan dengan \`/config notify enabled:true\`.`)
       .setColor(0x2ecc71)
+      .setThumbnail(GIF_ICONS.CONFIG)
       .setTimestamp();
 
     await interaction.reply({ embeds: [embed], ephemeral: true });
@@ -105,6 +107,7 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
           : 'Notifikasi harian telah dinonaktifkan.',
       )
       .setColor(enabled ? 0x2ecc71 : 0xe74c3c)
+      .setThumbnail(enabled ? GIF_ICONS.ALERT : GIF_ICONS.CONFIG)
       .setTimestamp();
 
     await interaction.reply({ embeds: [embed], ephemeral: true });
@@ -128,6 +131,7 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
         },
       )
       .setColor(0x3498db)
+      .setThumbnail(GIF_ICONS.CONFIG)
       .setTimestamp();
 
     await interaction.reply({ embeds: [embed], ephemeral: true });

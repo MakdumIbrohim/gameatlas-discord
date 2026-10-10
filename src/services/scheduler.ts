@@ -3,6 +3,7 @@ import { Client, EmbedBuilder, TextChannel } from 'discord.js';
 import { getGiveaways, Giveaway } from './gamerpower';
 import { buildGameEmbed } from '../discord/formatters/gameEmbed';
 import { getAllConfiguredGuilds } from './guildConfig';
+import { GIF_ICONS } from '../discord/constants/gifs';
 import { logger } from '../utils/logger';
 
 async function sendDailyAlert(
@@ -24,6 +25,7 @@ async function sendDailyAlert(
       .setTitle('🎮 GameAtlas — Daily Free Games Alert!')
       .setDescription(`Selamat pagi! 🌅 Hari ini ada **${giveaways.length}** game gratis aktif. Berikut yang paling baru:`)
       .setColor(0xf39c12)
+      .setThumbnail(GIF_ICONS.ALERT)
       .setTimestamp();
 
     const { embeds: gameEmbeds, components } = buildGameEmbed(giveaways.slice(0, 5), '');
