@@ -7,4 +7,5 @@ export const ANIMATED_EMOJIS = {
   LIGHTBULB: '<a:0267lightbulb:1558473678675517460>',
   TIMERSAND: '<a:26451timersand:1558476818166845522>',
   SEARCH: '<a:2918magnifyingglassresize:1558476811242045590>',
+  CALENDAR: '<a:99609calendar:1558478765619806268>',
 } as const;
