@@ -28,7 +28,7 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
   await interaction.deferReply();
 
   try {
-    await interaction.editReply({ content: '🔎 Sedang mencari game gratis...' });
+    await interaction.editReply({ content: '🔎 Sedang mencari game gratis... (bisa memakan waktu hingga 2 menit)' });
 
     const result = await sendMessageToLangflow(query, sessionId);
 

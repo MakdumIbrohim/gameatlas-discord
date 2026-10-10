@@ -20,7 +20,8 @@ export const config = {
     serverUrl: requireEnv('LANGFLOW_SERVER_URL'),
     apiKey: requireEnv('LANGFLOW_API_KEY'),
     flowId: requireEnv('LANGFLOW_FLOW_ID'),
-    timeoutMs: 30_000,
+    // Flow dengan Web Search + AI reasoning bisa butuh 60-120 detik
+    timeoutMs: Number(process.env['LANGFLOW_TIMEOUT_MS'] ?? 150_000),
   },
   gamerpower: {
     apiUrl: process.env['GAMERPOWER_API_URL'] ?? 'https://www.gamerpower.com/api',
