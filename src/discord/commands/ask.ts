@@ -11,7 +11,7 @@ import { LangflowError, TimeoutError } from "../../utils/errors";
 export const data = new SlashCommandBuilder()
   .setName("ask")
   .setDescription(
-    "Mau tanya soal game gratis? Ketik langsung pakai kata-kata biasa",
+    "Mau tanya soal game gratis? Ketik langsung apa yang mau dicari:D",
   )
   .addStringOption((option) =>
     option
