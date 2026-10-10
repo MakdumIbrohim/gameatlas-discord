@@ -9,11 +9,11 @@ import { LangflowError, TimeoutError } from '../../utils/errors';
 
 export const data = new SlashCommandBuilder()
   .setName('endingsoon')
-  .setDescription('Tampilkan giveaway game yang hampir berakhir')
+  .setDescription('Lihat giveaway yang mau berakhir — biar nggak ketinggalan klaim')
   .addIntegerOption((option) =>
     option
       .setName('days')
-      .setDescription('Berakhir dalam berapa hari ke depan? (default: 3)')
+      .setDescription('Mau lihat yang berakhir dalam berapa hari? (default: 3, maks: 14)')
       .setRequired(false)
       .setMinValue(1)
       .setMaxValue(14),

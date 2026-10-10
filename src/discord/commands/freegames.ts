@@ -17,11 +17,11 @@ const PAGE_SIZE = 5;
 
 export const data = new SlashCommandBuilder()
   .setName('freegames')
-  .setDescription('Tampilkan game gratis yang sedang tersedia')
+  .setDescription('Cek game gratis yang lagi available sekarang')
   .addStringOption((option) =>
     option
       .setName('platform')
-      .setDescription('Filter berdasarkan platform')
+      .setDescription('Mau filter platform tertentu? Pilih di sini (Steam, Epic, GOG, dll)')
       .setRequired(false)
       .setAutocomplete(true),
   );

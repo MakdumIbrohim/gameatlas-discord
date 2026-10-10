@@ -20,24 +20,24 @@ const GENRE_SUGGESTIONS = [
 
 export const data = new SlashCommandBuilder()
   .setName('search')
-  .setDescription('Cari game gratis dengan kata kunci spesifik menggunakan Web Search')
+  .setDescription('Cari game gratis berdasarkan judul, genre, atau kata kunci tertentu')
   .addStringOption((option) =>
     option
       .setName('query')
-      .setDescription('Kata kunci pencarian (contoh: Hollow Knight, game horror, RPG gratis)')
+      .setDescription('Ketik nama game atau kata kunci, contoh: Hollow Knight atau game survival gratis')
       .setRequired(true),
   )
   .addStringOption((option) =>
     option
       .setName('platform')
-      .setDescription('Filter platform (opsional)')
+      .setDescription('Batasi hasil ke platform tertentu (opsional)')
       .setRequired(false)
       .setAutocomplete(true),
   )
   .addStringOption((option) =>
     option
       .setName('genre')
-      .setDescription('Filter genre (opsional)')
+      .setDescription('Batasi hasil ke genre tertentu, contoh: RPG, Horror (opsional)')
       .setRequired(false)
       .setAutocomplete(true),
   );

@@ -10,40 +10,40 @@ import { logger } from '../../utils/logger';
 
 export const data = new SlashCommandBuilder()
   .setName('config')
-  .setDescription('Konfigurasi GameAtlas untuk server ini (Admin only)')
+  .setDescription('Pengaturan GameAtlas untuk server ini — khusus admin')
   .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
   .addSubcommand((sub) =>
     sub
       .setName('channel')
-      .setDescription('Set channel untuk notifikasi game gratis harian')
+      .setDescription('Pilih channel mana yang mau nerima notifikasi game gratis harian')
       .addChannelOption((opt) =>
         opt
           .setName('channel')
-          .setDescription('Channel tujuan notifikasi')
+          .setDescription('Pilih channel-nya di sini')
           .setRequired(true),
       ),
   )
   .addSubcommand((sub) =>
     sub
       .setName('notify')
-      .setDescription('Aktifkan atau nonaktifkan notifikasi harian')
+      .setDescription('Nyalain atau matiin notifikasi game gratis harian')
       .addBooleanOption((opt) =>
         opt
           .setName('enabled')
-          .setDescription('true = aktif, false = nonaktif')
+          .setDescription('true untuk aktifkan, false untuk matikan')
           .setRequired(true),
       )
       .addStringOption((opt) =>
         opt
           .setName('time')
-          .setDescription('Jam notifikasi dalam format HH:MM, zona WIB (default: 09:00)')
+          .setDescription('Jam kirim notifikasi, format HH:MM zona WIB (default: 09:00)')
           .setRequired(false),
       ),
   )
   .addSubcommand((sub) =>
     sub
       .setName('status')
-      .setDescription('Lihat konfigurasi GameAtlas saat ini'),
+      .setDescription('Cek pengaturan GameAtlas yang aktif sekarang'),
   );
 
 export async function execute(interaction: ChatInputCommandInteraction): Promise<void> {
