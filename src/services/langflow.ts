@@ -81,8 +81,12 @@ function parseStructuredOutput(text: string): LangflowResult {
       if (games && games.length > 0) {
         return { kind: 'structured', games };
       }
-    } catch {
-      // bukan JSON valid, fallback ke text
+      // JSON valid tapi tidak ada games yang dikenali — log untuk debug
+      logger.warn('Langflow JSON parsed but no games extracted', {
+        keys: typeof parsed === 'object' && parsed !== null ? Object.keys(parsed as object) : [],
+      });
+    } catch (e) {
+      logger.warn('Langflow response is not valid JSON', { error: String(e) });
     }
   }
 
