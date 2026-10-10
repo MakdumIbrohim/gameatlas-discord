@@ -35,24 +35,29 @@ async function sendDailyAlert(client: Client, guildId: string, channelId: string
 const scheduledTasks = new Map<string, nodeCron.ScheduledTask>();
 
 export function startDailyAlertScheduler(client: Client): void {
-  // Check every minute whether any guild's notify time has been reached
-  nodeCron.schedule('* * * * *', async () => {
-    const guilds = getAllConfiguredGuilds();
-    if (guilds.length === 0) return;
+  // Check every minute whether any guild's notify time has been reached.
+  // Use setImmediate to yield back to the event loop before doing any work,
+  // which prevents the node-cron "missed execution" warning caused by
+  // blocking IO (e.g. Langflow/GamerPower requests) in the same process.
+  nodeCron.schedule('* * * * *', () => {
+    setImmediate(async () => {
+      const guilds = getAllConfiguredGuilds();
+      if (guilds.length === 0) return;
 
-    const now = new Date();
-    // Use WIB (UTC+7)
-    const wibHour = String((now.getUTCHours() + 7) % 24).padStart(2, '0');
-    const wibMin = String(now.getUTCMinutes()).padStart(2, '0');
-    const currentTime = `${wibHour}:${wibMin}`;
+      const now = new Date();
+      // Use WIB (UTC+7)
+      const wibHour = String((now.getUTCHours() + 7) % 24).padStart(2, '0');
+      const wibMin = String(now.getUTCMinutes()).padStart(2, '0');
+      const currentTime = `${wibHour}:${wibMin}`;
 
-    for (const { guildId, config } of guilds) {
-      const targetTime = config.notifyTime ?? '09:00';
-      if (currentTime === targetTime && config.notifyChannelId) {
-        logger.info('Triggering daily alert', { guildId, targetTime });
-        await sendDailyAlert(client, guildId, config.notifyChannelId);
+      for (const { guildId, config } of guilds) {
+        const targetTime = config.notifyTime ?? '09:00';
+        if (currentTime === targetTime && config.notifyChannelId) {
+          logger.info('Triggering daily alert', { guildId, targetTime });
+          await sendDailyAlert(client, guildId, config.notifyChannelId);
+        }
       }
-    }
+    });
   });
 
   logger.info('Daily alert scheduler started');
