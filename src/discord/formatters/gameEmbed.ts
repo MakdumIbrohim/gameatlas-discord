@@ -2,6 +2,7 @@ import { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'disc
 import { Giveaway } from '../../services/gamerpower';
 import { LangflowGameResult } from '../../services/langflow';
 import { GIF_ICONS } from '../constants/gifs';
+import { ANIMATED_EMOJIS } from '../constants/emojis';
 
 const GAMERPOWER_URL = 'https://www.gamerpower.com';
 const MAX_GAMES_PER_EMBED = 5;
@@ -51,12 +52,12 @@ export function buildGameEmbed(
   slice.forEach((game, index) => {
     const num = index + 1;
     const endInfo = formatEndDate(game.end_date);
-    const worth = game.worth && game.worth !== 'N/A' ? ` • Worth: ${game.worth}` : '';
+    const worth = game.worth && game.worth !== 'N/A' ? ` • ${ANIMATED_EMOJIS.COIN} ${game.worth}` : '';
     embed.addFields({
       name: `${num}. ${game.title}`,
       value: [
-        `🖥️ **Platform:** ${game.platforms}`,
-        `🎁 **Type:** ${game.type}`,
+        `${ANIMATED_EMOJIS.LAPTOP} **Platform:** ${game.platforms}`,
+        `${ANIMATED_EMOJIS.PRESENT} **Type:** ${game.type}`,
         `⏳ **Free until:** ${endInfo}${worth}`,
       ].join('\n'),
     });
@@ -81,15 +82,15 @@ export interface StructuredEmbedResult {
 }
 
 const TYPE_LABEL: Record<string, string> = {
-  game: '🎮 Full Game',
-  loot: '🎁 In-Game Loot / DLC',
+  game: `${ANIMATED_EMOJIS.CONTROLLER} Full Game`,
+  loot: `${ANIMATED_EMOJIS.PRESENT} In-Game Loot / DLC`,
   beta: '🧪 Beta Access',
-  dlc: '🎁 DLC',
+  dlc: `${ANIMATED_EMOJIS.PRESENT} DLC`,
   early_access: '🚀 Early Access',
 };
 
 function formatTypeLabel(type: string): string {
-  return TYPE_LABEL[type.toLowerCase()] ?? `🎁 ${type}`;
+  return TYPE_LABEL[type.toLowerCase()] ?? `${ANIMATED_EMOJIS.PRESENT} ${type}`;
 }
 
 function formatEndDateFriendly(endDate?: string): string {
@@ -109,10 +110,10 @@ function buildSingleGameEmbed(game: LangflowGameResult, index: number, total: nu
   const claimUrl = game.claim_url ?? game.open_giveaway_url;
 
   const lines: string[] = [
-    `🖥️ **Platform:** ${game.platform}`,
+    `${ANIMATED_EMOJIS.LAPTOP} **Platform:** ${game.platform}`,
     `${formatTypeLabel(game.type)}`,
     game.worth && game.worth !== 'N/A' && game.worth !== 'null'
-      ? `💰 **Nilai:** ${game.worth}`
+      ? `${ANIMATED_EMOJIS.COIN} **Nilai:** ${game.worth}`
       : '',
     formatEndDateFriendly(game.end_date),
   ];
@@ -121,10 +122,10 @@ function buildSingleGameEmbed(game: LangflowGameResult, index: number, total: nu
   const desc = game.description && game.description !== game.title
     ? game.description.slice(0, 150) + (game.description.length > 150 ? '...' : '')
     : null;
-  if (desc) lines.push(`\n📝 ${desc}`);
+  if (desc) lines.push(`\n${ANIMATED_EMOJIS.STATIONARY} ${desc}`);
 
   // Alasan dari AI
-  if (game.reason) lines.push(`\n💡 *${game.reason}*`);
+  if (game.reason) lines.push(`\n${ANIMATED_EMOJIS.LIGHTBULB} *${game.reason}*`);
 
   const embed = new EmbedBuilder()
     .setTitle(game.title)

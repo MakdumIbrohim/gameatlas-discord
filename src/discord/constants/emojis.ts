@@ -1,0 +1,8 @@
+export const ANIMATED_EMOJIS = {
+  LAPTOP: '<a:laptop:1558473143239180309>',
+  CONTROLLER: '<a:gamingcontroller:1558473674326151258>',
+  COIN: '<a:gdgoldencoinspin:1558473681162739904>',
+  PRESENT: '<a:380114bouncingpresent:1558473671675220112>',
+  STATIONARY: '<a:stationary:1558473683473932431>',
+  LIGHTBULB: '<a:0267lightbulb:1558473678675517460>',
+} as const;
