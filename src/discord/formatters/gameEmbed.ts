@@ -58,7 +58,7 @@ export function buildGameEmbed(
       value: [
         `${ANIMATED_EMOJIS.LAPTOP} **Platform:** ${game.platforms}`,
         `${ANIMATED_EMOJIS.PRESENT} **Type:** ${game.type}`,
-        `⏳ **Free until:** ${endInfo}${worth}`,
+        `${ANIMATED_EMOJIS.TIMERSAND} **Free until:** ${endInfo}${worth}`,
       ].join('\n'),
     });
 
@@ -102,8 +102,8 @@ function formatEndDateFriendly(endDate?: string): string {
   if (diffMs <= 0) return '⚠️ Segera berakhir';
   const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
   const dateStr = end.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-  if (diffDays === 1) return `⏳ Berakhir besok (${dateStr})`;
-  return `⏳ ${diffDays} hari lagi — ${dateStr}`;
+  if (diffDays === 1) return `${ANIMATED_EMOJIS.TIMERSAND} Berakhir besok (${dateStr})`;
+  return `${ANIMATED_EMOJIS.TIMERSAND} ${diffDays} hari lagi — ${dateStr}`;
 }
 
 function buildSingleGameEmbed(game: LangflowGameResult, index: number, total: number): EmbedBuilder {

@@ -12,6 +12,7 @@ import {
 import { logger } from '../../utils/logger';
 import { LangflowError, TimeoutError } from '../../utils/errors';
 import { PLATFORMS } from '../constants/platforms';
+import { ANIMATED_EMOJIS } from '../constants/emojis';
 
 const GENRE_SUGGESTIONS = [
   'RPG', 'Action', 'Strategy', 'Horror', 'Puzzle',
@@ -71,7 +72,7 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
   await interaction.deferReply();
 
   try {
-    await interaction.editReply({ content: `🔍 Mencari "${query}"... (bisa memakan waktu hingga 2 menit)` });
+    await interaction.editReply({ content: `${ANIMATED_EMOJIS.SEARCH} Mencari "${query}"... (bisa memakan waktu hingga 2 menit)` });
 
     const parts = [`Cari game gratis dengan kata kunci: "${query}".`];
     if (platform) parts.push(`Filter platform: ${platform}.`);

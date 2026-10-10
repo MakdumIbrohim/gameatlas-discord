@@ -5,6 +5,7 @@ import {
   buildErrorEmbed,
   buildStructuredGameEmbed,
 } from "../formatters/gameEmbed";
+import { ANIMATED_EMOJIS } from "../constants/emojis";
 import { logger } from "../../utils/logger";
 import { LangflowError, TimeoutError } from "../../utils/errors";
 
@@ -33,7 +34,7 @@ export async function execute(
   try {
     await interaction.editReply({
       content:
-        "🔎 Sedang mencari game gratis... (bisa memakan waktu hingga 2 menit)",
+        `${ANIMATED_EMOJIS.SEARCH} Sedang mencari game gratis... (bisa memakan waktu hingga 2 menit)`,
     });
 
     const result = await sendMessageToLangflow(query, sessionId);

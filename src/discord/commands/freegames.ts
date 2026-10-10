@@ -12,6 +12,7 @@ import { buildGameEmbed, buildErrorEmbed } from '../formatters/gameEmbed';
 import { logger } from '../../utils/logger';
 import { GamerPowerError, TimeoutError } from '../../utils/errors';
 import { PLATFORMS } from '../constants/platforms';
+import { ANIMATED_EMOJIS } from '../constants/emojis';
 
 const PAGE_SIZE = 5;
 
@@ -66,7 +67,7 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
   await interaction.deferReply();
 
   try {
-    await interaction.editReply({ content: '🔎 Sedang mencari game gratis...' });
+    await interaction.editReply({ content: `${ANIMATED_EMOJIS.SEARCH} Sedang mencari game gratis...` });
 
     const giveaways = await getGiveaways(platform);
 

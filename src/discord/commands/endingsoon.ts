@@ -4,6 +4,7 @@ import {
 } from 'discord.js';
 import { sendMessageToLangflow } from '../../services/langflow';
 import { buildStructuredGameEmbed, buildErrorEmbed } from '../formatters/gameEmbed';
+import { ANIMATED_EMOJIS } from '../constants/emojis';
 import { logger } from '../../utils/logger';
 import { LangflowError, TimeoutError } from '../../utils/errors';
 
@@ -26,7 +27,7 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
   await interaction.deferReply();
 
   try {
-    await interaction.editReply({ content: `⏳ Mencari giveaway yang berakhir dalam ${days} hari... (bisa memakan waktu hingga 2 menit)` });
+    await interaction.editReply({ content: `${ANIMATED_EMOJIS.TIMERSAND} Mencari giveaway yang berakhir dalam ${days} hari... (bisa memakan waktu hingga 2 menit)` });
 
     const query = `Cari semua giveaway game aktif yang akan berakhir dalam ${days} hari ke depan. Gunakan Current Date untuk menghitung tanggal. Urutkan dari yang paling dekat berakhir. Prioritaskan game dengan nilai tertinggi jika ada yang berakhir di waktu yang sama.`;
 

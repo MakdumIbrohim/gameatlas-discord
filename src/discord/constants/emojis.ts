@@ -5,4 +5,6 @@ export const ANIMATED_EMOJIS = {
   PRESENT: '<a:380114bouncingpresent:1558473671675220112>',
   STATIONARY: '<a:stationary:1558473683473932431>',
   LIGHTBULB: '<a:0267lightbulb:1558473678675517460>',
+  TIMERSAND: '<a:26451timersand:1558476818166845522>',
+  SEARCH: '<a:2918magnifyingglassresize:1558476811242045590>',
 } as const;
