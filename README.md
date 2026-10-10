@@ -30,6 +30,7 @@ GameAtlas adalah Discord Bot berbasis AI yang membantu pengguna menemukan **game
 - **Data Source:** GamerPower API (no key required)
 - **HTTP Client:** axios
 - **Scheduler:** node-cron (daily alert)
+- **Database:** better-sqlite3 (guild config persistence)
 - **Testing:** Jest + ts-jest
 
 ---
@@ -75,6 +76,9 @@ LANGFLOW_TIMEOUT_MS=150000  # Timeout dalam ms (default 150 detik, naikan jika f
 
 # GamerPower (default sudah tersedia, tidak perlu diubah)
 GAMERPOWER_API_URL=https://www.gamerpower.com/api
+
+# Database (opsional — default: ./data/gameatlas.db)
+DB_PATH=./data/gameatlas.db
 ```
 
 ### 3. Undang bot ke server Discord
@@ -327,7 +331,8 @@ src/
 ├── services/
 │   ├── langflow.ts                   # Langflow HTTP API client + JSON parser
 │   ├── gamerpower.ts                 # GamerPower API client
-│   ├── guildConfig.ts                # In-memory guild config store (channel, notify settings)
+│   ├── database.ts                   # SQLite connection & migration (better-sqlite3)
+│   ├── guildConfig.ts                # Guild config CRUD — backed by SQLite
 │   └── scheduler.ts                  # node-cron daily alert scheduler
 └── utils/
     ├── logger.ts                     # Structured JSON logger
@@ -337,6 +342,9 @@ tests/
 ├── langflow.test.ts                  # Unit tests — Langflow service + JSON parsing
 ├── gamerpower.test.ts                # Unit tests — GamerPower service
 └── formatter.test.ts                 # Unit tests — Discord Embed formatter
+
+data/
+└── gameatlas.db                      # SQLite database (auto-created, excluded from Git)
 ```
 
 ---
@@ -355,7 +363,7 @@ Untuk mengaktifkan notifikasi game gratis harian otomatis di server Discord kamu
 4. Cek status konfigurasi dengan `/config status`
 5. Nonaktifkan dengan `/config notify enabled:false`
 
-> **Catatan:** Konfigurasi disimpan **in-memory** dan akan reset saat bot restart. Untuk persistensi permanen, integrate dengan database seperti SQLite.
+> **Konfigurasi disimpan permanen di SQLite** (`data/gameatlas.db`) — setting tetap ada setelah bot restart, update, atau container restart.
 
 ---
 
@@ -384,6 +392,14 @@ Data giveaway disediakan oleh **[GamerPower](https://www.gamerpower.com)**. Sesu
 ---
 
 ## Changelog
+
+### v1.2.0
+- SQLite persistence untuk guild config via `better-sqlite3`
+- Konfigurasi `/config` tidak lagi reset saat bot restart
+- Tambah `DB_PATH` env var untuk kustomisasi lokasi database
+- Docker volume `gameatlas-data` untuk persist database di container
+- Graceful shutdown — tutup koneksi DB saat `SIGTERM`/`SIGINT`
+- Fix node-cron missed execution warning dengan `setImmediate`
 
 ### v1.1.0
 - Tambah command `/search` — cari game via Web Search Langflow
