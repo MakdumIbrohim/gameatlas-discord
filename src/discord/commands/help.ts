@@ -2,67 +2,54 @@ import {
   ChatInputCommandInteraction,
   EmbedBuilder,
   SlashCommandBuilder,
-} from 'discord.js';
-import { GIF_ICONS } from '../constants/gifs';
+} from "discord.js";
+import { GIF_ICONS } from "../constants/gifs";
+import { ANIMATED_EMOJIS } from "../constants/emojis";
 
 export const data = new SlashCommandBuilder()
-  .setName('help')
-  .setDescription('Tampilkan daftar command GameAtlas');
+  .setName("help")
+  .setDescription("Biar nggak bingung, cek cara pakai GameAtlas di sini!");
 
-export async function execute(interaction: ChatInputCommandInteraction): Promise<void> {
+export async function execute(
+  interaction: ChatInputCommandInteraction,
+): Promise<void> {
   const embed = new EmbedBuilder()
-    .setTitle('🎮 GameAtlas — Help')
-    .setDescription('Bot untuk menemukan game gratis dan giveaway dari berbagai platform.')
-    .setThumbnail(GIF_ICONS.HELP)
+    .setTitle("🎮 GameAtlas — Command List")
+    .setDescription(
+      "Bot andalan buat hunting game gratisan & giveaway dari Steam, Epic Games, GOG, PlayStation, Xbox, dll.\n" +
+        "Tinggal ketik slash (`/`) terus pilih command di bawah ini yak:\n",
+    )
+    .setThumbnail(GIF_ICONS.GAME)
+    .setColor(0x3498db)
     .addFields(
       {
-        name: '`/freegames`',
-        value: 'Tampilkan semua game gratis yang sedang tersedia.',
+        name: `${ANIMATED_EMOJIS.CONTROLLER} Hunting Game Gratisan`,
+        value: [
+          "• **`/freegames`** — Spill semua game gratis yang lagi aktif sekarang.",
+          "   ↳ *Bisa pilih opsi `platform` buat filter (Steam, Epic, dll).*",
+          "• **`/endingsoon`** — Cek giveaway yang bentar lagi expired biar nggak FOMO.",
+          "   ↳ *Bisa atur opsi `days` (default: 3 hari ke depan).*",
+        ].join("\n"),
       },
       {
-        name: '`/freegames platform:<nama>`',
-        value:
-          'Filter game gratis berdasarkan platform dengan **autocomplete**.\n' +
-          'Ketik nama platform → pilih dari suggestion yang muncul.\n' +
-          'Mendukung pagination ◀ ▶ jika hasil lebih dari 5.',
+        name: `${ANIMATED_EMOJIS.SEARCH} Tanya AI & Cari Game`,
+        value: [
+          "• **`/ask <query>`** — Curhat atau tanya rekomendasi game gratis ke AI.",
+          "   ↳ *Contoh: `/ask query:Ada game RPG gratis di Steam?`*",
+          "• **`/search <query>`** — Cari game spesifik pake Web Search.",
+          "   ↳ *Contoh: `/search query:Hollow Knight platform:steam`*",
+        ].join("\n"),
       },
       {
-        name: '`/ask query:<pertanyaan>`',
-        value:
-          'Tanyakan dalam bahasa natural via AI.\n' +
-          'Contoh: `/ask query:Ada game RPG gratis di Steam?`',
-      },
-      {
-        name: '`/search query:<kata kunci>`',
-        value:
-          'Cari game spesifik menggunakan Web Search.\n' +
-          'Contoh: `/search query:Hollow Knight` atau `/search query:game horror platform:steam`',
-      },
-      {
-        name: '`/endingsoon`',
-        value:
-          'Tampilkan giveaway yang hampir berakhir.\n' +
-          'Opsi: `/endingsoon days:3` — berakhir dalam 3 hari.',
-      },
-      {
-        name: '`/config channel`',
-        value: '*(Admin)* Set channel untuk notifikasi game gratis harian.',
-      },
-      {
-        name: '`/config notify enabled:true`',
-        value: '*(Admin)* Aktifkan/nonaktifkan notifikasi harian. Opsi: `time:09:00` untuk atur jam (WIB).',
-      },
-      {
-        name: '`/config status`',
-        value: '*(Admin)* Lihat konfigurasi bot saat ini.',
-      },
-      {
-        name: '`/help`',
-        value: 'Tampilkan halaman bantuan ini.',
+        name: "⚙️ Setting Server (Khusus Admin)",
+        value: [
+          "• **`/config channel`** — Atur channel buat drop notif gratisan tiap hari.",
+          "• **`/config notify`** — Nyalain/matiin auto-alert harian (bisa set jam `time:09:00`).",
+          "• **`/config status`** — Intip status settingan bot di server ini.",
+        ].join("\n"),
       },
     )
-    .setColor(0x3498db)
-    .setFooter({ text: 'Powered by GamerPower & Langflow' })
+    .setFooter({ text: "GameAtlas • Powered by GamerPower & Langflow" })
     .setTimestamp();
 
   await interaction.reply({ embeds: [embed], ephemeral: true });

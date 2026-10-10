@@ -10,11 +10,11 @@ import { LangflowError, TimeoutError } from '../../utils/errors';
 
 export const data = new SlashCommandBuilder()
   .setName('endingsoon')
-  .setDescription('Lihat giveaway yang mau berakhir — biar nggak ketinggalan klaim')
+  .setDescription('Cek giveaway yang bentar lagi hangus — jangan sampe kelewat!')
   .addIntegerOption((option) =>
     option
       .setName('days')
-      .setDescription('Mau lihat yang berakhir dalam berapa hari? (default: 3, maks: 14)')
+      .setDescription('Berapa hari ke depan nih? (default: 3, maks: 14)')
       .setRequired(false)
       .setMinValue(1)
       .setMaxValue(14),
@@ -27,7 +27,7 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
   await interaction.deferReply();
 
   try {
-    await interaction.editReply({ content: `${ANIMATED_EMOJIS.TIMERSAND} Mencari giveaway yang berakhir dalam ${days} hari... (bisa memakan waktu hingga 2 menit)` });
+    await interaction.editReply({ content: `${ANIMATED_EMOJIS.TIMERSAND} Lagi nyari giveaway yang mau hangus dalam ${days} hari... sabar yaa!` });
 
     const query = `Cari semua giveaway game aktif yang akan berakhir dalam ${days} hari ke depan. Gunakan Current Date untuk menghitung tanggal. Urutkan dari yang paling dekat berakhir. Prioritaskan game dengan nilai tertinggi jika ada yang berakhir di waktu yang sama.`;
 
@@ -46,9 +46,9 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
   } catch (err) {
     logger.error('endingsoon command error', { error: String(err) });
 
-    let message = 'Maaf, GameAtlas sedang tidak dapat memproses permintaan.\nCoba lagi beberapa saat.';
-    if (err instanceof TimeoutError) message = 'Permintaan habis waktu.\nCoba lagi beberapa saat.';
-    else if (err instanceof LangflowError) message = 'Maaf, GameAtlas sedang tidak dapat memproses permintaan.\nCoba lagi beberapa saat.';
+    let message = 'Duh, GameAtlas lagi ngelag nih pas proses request lu.\nCoba lagi bentar ya!';
+    if (err instanceof TimeoutError) message = 'Waduh koneksinya timeout nih kelamaan nunggu.\nCoba lagi bentar ya!';
+    else if (err instanceof LangflowError) message = 'Duh, GameAtlas lagi ngelag nih pas proses request lu.\nCoba lagi bentar ya!';
 
     await interaction.editReply({ content: null, embeds: [buildErrorEmbed(message)] });
   }

@@ -22,8 +22,8 @@ async function sendDailyAlert(
     }
 
     const header = new EmbedBuilder()
-      .setTitle('🎮 GameAtlas — Daily Free Games Alert!')
-      .setDescription(`Selamat pagi! 🌅 Hari ini ada **${giveaways.length}** game gratis aktif. Berikut yang paling baru:`)
+      .setTitle('🎮 GameAtlas — Drop Game Gratisan Hari Ini!')
+      .setDescription(`Morning gamers! 🌅 Hari ini ada **${giveaways.length}** game gratisan aktif nih. Cek yang paling fresh buat diklaim:`)
       .setColor(0xf39c12)
       .setThumbnail(GIF_ICONS.ALERT)
       .setTimestamp();

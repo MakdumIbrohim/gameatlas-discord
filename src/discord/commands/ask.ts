@@ -12,7 +12,7 @@ import { LangflowError, TimeoutError } from "../../utils/errors";
 export const data = new SlashCommandBuilder()
   .setName("ask")
   .setDescription(
-    "Mau tanya soal game gratis? Ketik langsung apa yang mau dicari:D",
+    "Tanya rekomendasi atau info game gratisan ke AI kita!",
   )
   .addStringOption((option) =>
     option
@@ -34,7 +34,7 @@ export async function execute(
   try {
     await interaction.editReply({
       content:
-        `${ANIMATED_EMOJIS.SEARCH} Sedang mencari game gratis... (bisa memakan waktu hingga 2 menit)`,
+        `${ANIMATED_EMOJIS.SEARCH} Otw nyariin game gratisnya, bentar yaa... (bisa makan waktu sampe 2 menit)`,
     });
 
     const result = await sendMessageToLangflow(query, sessionId);
@@ -58,12 +58,12 @@ export async function execute(
     logger.error("ask command error", { error: String(err) });
 
     let message =
-      "Maaf, GameAtlas sedang tidak dapat memproses permintaan.\nCoba lagi beberapa saat.";
+      "Duh, GameAtlas lagi ngelag nih pas proses request lu.\nCoba lagi bentar ya!";
     if (err instanceof TimeoutError) {
-      message = "Permintaan habis waktu.\nCoba lagi beberapa saat.";
+      message = "Waduh koneksinya timeout nih kelamaan nunggu.\nCoba lagi bentar ya!";
     } else if (err instanceof LangflowError) {
       message =
-        "Maaf, GameAtlas sedang tidak dapat memproses permintaan.\nCoba lagi beberapa saat.";
+        "Duh, GameAtlas lagi ngelag nih pas proses request lu.\nCoba lagi bentar ya!";
     }
 
     await interaction.editReply({

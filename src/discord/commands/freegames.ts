@@ -18,7 +18,7 @@ const PAGE_SIZE = 5;
 
 export const data = new SlashCommandBuilder()
   .setName('freegames')
-  .setDescription('Cek game gratis yang lagi available sekarang')
+  .setDescription('Spill game gratis yang lagi aktif sekarang!')
   .addStringOption((option) =>
     option
       .setName('platform')
@@ -67,14 +67,14 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
   await interaction.deferReply();
 
   try {
-    await interaction.editReply({ content: `${ANIMATED_EMOJIS.SEARCH} Sedang mencari game gratis...` });
+    await interaction.editReply({ content: `${ANIMATED_EMOJIS.SEARCH} Otw nyari list game gratisan buat lu...` });
 
     const giveaways = await getGiveaways(platform);
 
     if (giveaways.length === 0) {
       await interaction.editReply({
         content: null,
-        embeds: [buildErrorEmbed('Belum menemukan giveaway yang sesuai.\nCoba platform atau kata kunci lain.')],
+        embeds: [buildErrorEmbed('Belum menemukan giveaway yang cocok nih!\nCoba cek platform atau keyword lain ya.')],
       });
       return;
     }
@@ -127,9 +127,9 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
     });
   } catch (err) {
     logger.error('freegames command error', { error: String(err) });
-    let message = 'Sumber data game sedang tidak dapat diakses.\nSilakan coba lagi nanti.';
-    if (err instanceof TimeoutError) message = 'Permintaan ke sumber data habis waktu.\nSilakan coba lagi beberapa saat.';
-    else if (err instanceof GamerPowerError) message = 'Sumber data game sedang tidak dapat diakses.\nSilakan coba lagi nanti.';
+    let message = 'Sumber data game-nya lagi ngadat nih.\nCoba lagi bentar ya!';
+    if (err instanceof TimeoutError) message = 'Permintaan ke sumber data timeout nih.\nCoba lagi bentar ya!';
+    else if (err instanceof GamerPowerError) message = 'Sumber data game-nya lagi ngadat nih.\nCoba lagi bentar ya!';
     await interaction.editReply({ content: null, embeds: [buildErrorEmbed(message)] });
   }
 }

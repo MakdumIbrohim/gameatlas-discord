@@ -49,7 +49,7 @@ export const data = new SlashCommandBuilder()
 
 export async function execute(interaction: ChatInputCommandInteraction): Promise<void> {
   if (!interaction.guildId) {
-    await interaction.reply({ content: '⚠️ Command ini hanya bisa digunakan di dalam server.', ephemeral: true });
+    await interaction.reply({ content: '⚠️ Command ini cuma bisa dipake di dalem server ya bro.', ephemeral: true });
     return;
   }
 
@@ -58,14 +58,14 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
   if (sub === 'channel') {
     const channel = interaction.options.getChannel('channel', true);
     if (!(channel instanceof TextChannel)) {
-      await interaction.reply({ content: '⚠️ Pilih text channel yang valid.', ephemeral: true });
+      await interaction.reply({ content: '⚠️ Pilih text channel yang bener dong.', ephemeral: true });
       return;
     }
     setGuildConfig(interaction.guildId, { notifyChannelId: channel.id });
 
     const embed = new EmbedBuilder()
-      .setTitle('✅ Channel Notifikasi Diset')
-      .setDescription(`Notifikasi game gratis harian akan dikirim ke <#${channel.id}>.\n\nAktifkan dengan \`/config notify enabled:true\`.`)
+      .setTitle('✅ Channel Alert Udah Diset!')
+      .setDescription(`Notif game gratis harian bakal dikirim ke <#${channel.id}>.\n\nJangan lupa aktifin pake \`/config notify enabled:true\` ya!`)
       .setColor(0x2ecc71)
       .setThumbnail(GIF_ICONS.CONFIG)
       .setTimestamp();
@@ -82,7 +82,7 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
     let notifyTime = '09:00';
     if (timeInput) {
       if (!/^\d{2}:\d{2}$/.test(timeInput)) {
-        await interaction.reply({ content: '⚠️ Format waktu tidak valid. Gunakan HH:MM, contoh: `09:00`', ephemeral: true });
+        await interaction.reply({ content: '⚠️ Format jam salah nih. Pake format HH:MM ya, contoh: `09:00`', ephemeral: true });
         return;
       }
       notifyTime = timeInput;
@@ -91,7 +91,7 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
     const cfg = getGuildConfig(interaction.guildId);
     if (enabled && !cfg.notifyChannelId) {
       await interaction.reply({
-        content: '⚠️ Set channel dulu dengan `/config channel` sebelum mengaktifkan notifikasi.',
+        content: '⚠️ Atur channel dulu pake `/config channel` baru bisa nyalain notif ya!',
         ephemeral: true,
       });
       return;
@@ -100,11 +100,11 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
     setGuildConfig(interaction.guildId, { notifyEnabled: enabled, notifyTime });
 
     const embed = new EmbedBuilder()
-      .setTitle(enabled ? '🔔 Notifikasi Diaktifkan' : '🔕 Notifikasi Dinonaktifkan')
+      .setTitle(enabled ? '🔔 Alert Harian Aktif!' : '🔕 Alert Harian Dimatiin!')
       .setDescription(
         enabled
-          ? `Notifikasi game gratis akan dikirim setiap hari pukul **${notifyTime} WIB** ke <#${cfg.notifyChannelId}>.`
-          : 'Notifikasi harian telah dinonaktifkan.',
+          ? `Notif game gratisan bakal drop tiap hari jam **${notifyTime} WIB** di <#${cfg.notifyChannelId}>. Siap-siap klaim!`
+          : 'Auto-alert harian udah dinonaktifkan.',
       )
       .setColor(enabled ? 0x2ecc71 : 0xe74c3c)
       .setThumbnail(enabled ? GIF_ICONS.ALERT : GIF_ICONS.CONFIG)
@@ -117,16 +117,16 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
   if (sub === 'status') {
     const cfg = getGuildConfig(interaction.guildId);
     const embed = new EmbedBuilder()
-      .setTitle('⚙️ GameAtlas Config')
+      .setTitle('⚙️ Settingan GameAtlas Server Ini')
       .addFields(
         {
-          name: '📢 Channel Notifikasi',
-          value: cfg.notifyChannelId ? `<#${cfg.notifyChannelId}>` : 'Belum diset',
+          name: '📢 Channel Alert',
+          value: cfg.notifyChannelId ? `<#${cfg.notifyChannelId}>` : 'Belum diset nih',
           inline: true,
         },
         {
-          name: '🔔 Notifikasi Harian',
-          value: cfg.notifyEnabled ? `✅ Aktif — pukul ${cfg.notifyTime ?? '09:00'} WIB` : '❌ Nonaktif',
+          name: '🔔 Alert Harian',
+          value: cfg.notifyEnabled ? `✅ Aktif — tiap ${cfg.notifyTime ?? '09:00'} WIB` : '❌ Mati',
           inline: true,
         },
       )

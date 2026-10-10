@@ -29,7 +29,7 @@ export function buildGameEmbed(
   if (giveaways.length === 0) {
     const embed = new EmbedBuilder()
       .setTitle(title)
-      .setDescription('Belum menemukan giveaway yang sesuai.\nCoba platform atau kata kunci lain.')
+      .setDescription('Belum menemukan giveaway yang cocok nih!\nCoba cek platform atau keyword lain ya.')
       .setColor(0xe74c3c)
       .setThumbnail(GIF_ICONS.SEARCH)
       .setFooter({ text: 'Powered by GamerPower • gameratlas.gg' })
@@ -57,8 +57,8 @@ export function buildGameEmbed(
       name: `${num}. ${game.title}`,
       value: [
         `${ANIMATED_EMOJIS.LAPTOP} **Platform:** ${game.platforms}`,
-        `${ANIMATED_EMOJIS.PRESENT} **Type:** ${game.type}`,
-        `${ANIMATED_EMOJIS.CALENDAR} **Free until:** ${endInfo}${worth}`,
+        `${ANIMATED_EMOJIS.PRESENT} **Tipe:** ${game.type}`,
+        `${ANIMATED_EMOJIS.CALENDAR} **Gratis sampe:** ${endInfo}${worth}`,
       ].join('\n'),
     });
 
@@ -94,16 +94,16 @@ function formatTypeLabel(type: string): string {
 }
 
 function formatEndDateFriendly(endDate?: string): string {
-  if (!endDate || endDate === 'N/A' || endDate === 'null') return '♾️ Masih aktif';
+  if (!endDate || endDate === 'N/A' || endDate === 'null') return '♾️ Santai, masih aktif';
   const end = new Date(endDate);
   if (isNaN(end.getTime())) return `${ANIMATED_EMOJIS.CALENDAR} ${endDate}`;
   const now = new Date();
   const diffMs = end.getTime() - now.getTime();
-  if (diffMs <= 0) return '⚠️ Segera berakhir';
+  if (diffMs <= 0) return '⚠️ Udah mau abis!';
   const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
   const dateStr = end.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-  if (diffDays === 1) return `${ANIMATED_EMOJIS.CALENDAR} Berakhir besok (${dateStr})`;
-  return `${ANIMATED_EMOJIS.CALENDAR} ${diffDays} hari lagi — ${dateStr}`;
+  if (diffDays === 1) return `${ANIMATED_EMOJIS.CALENDAR} Besok kelar! (${dateStr})`;
+  return `${ANIMATED_EMOJIS.CALENDAR} ${diffDays} hari lagi (${dateStr})`;
 }
 
 function buildSingleGameEmbed(game: LangflowGameResult, index: number, total: number): EmbedBuilder {
@@ -113,7 +113,7 @@ function buildSingleGameEmbed(game: LangflowGameResult, index: number, total: nu
     `${ANIMATED_EMOJIS.LAPTOP} **Platform:** ${game.platform}`,
     `${formatTypeLabel(game.type)}`,
     game.worth && game.worth !== 'N/A' && game.worth !== 'null'
-      ? `${ANIMATED_EMOJIS.COIN} **Nilai:** ${game.worth}`
+      ? `${ANIMATED_EMOJIS.COIN} **Harga asli:** ${game.worth}`
       : '',
     formatEndDateFriendly(game.end_date),
   ];
@@ -149,7 +149,7 @@ function buildSingleGameEmbed(game: LangflowGameResult, index: number, total: nu
 export function buildStructuredGameEmbed(games: LangflowGameResult[]): StructuredEmbedResult {
   if (games.length === 0) {
     return {
-      embeds: [buildErrorEmbed('Belum menemukan giveaway yang sesuai.\nCoba platform atau kata kunci lain.')],
+      embeds: [buildErrorEmbed('Belum menemukan giveaway yang cocok nih!\nCoba ganti platform atau kata kunci lain ya.')],
       components: [],
     };
   }
@@ -159,7 +159,7 @@ export function buildStructuredGameEmbed(games: LangflowGameResult[]): Structure
   // Header embed ringkas
   const header = new EmbedBuilder()
     .setTitle('🎮 GameAtlas — Free Games')
-    .setDescription(`Ditemukan **${games.length}** giveaway aktif. Menampilkan ${slice.length} teratas.`)
+    .setDescription(`Nemu **${games.length}** giveaway aktif nih! Ini ${slice.length} yang paling recommended:`)
     .setThumbnail(GIF_ICONS.GAME)
     .setColor(0x3498db);
 
