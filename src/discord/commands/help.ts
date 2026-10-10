@@ -41,7 +41,7 @@ export async function execute(
         ].join("\n"),
       },
       {
-        name: "⚙️ Setting Server (Khusus Admin)",
+        name: `${ANIMATED_EMOJIS.GEAR} Setting Server (Khusus Admin)`,
         value: [
           "• **`/config channel`** — Atur channel buat drop notif gratisan tiap hari.",
           "• **`/config notify`** — Nyalain/matiin auto-alert harian (bisa set jam `time:09:00`).",
