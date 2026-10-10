@@ -8,10 +8,17 @@ GameAtlas adalah Discord Bot berbasis AI yang membantu pengguna menemukan **game
 
 ## Features
 
-- `/freegames` — tampilkan semua game gratis yang sedang tersedia
-- `/freegames platform:steam` — filter berdasarkan platform
-- `/ask query:...` — tanya dalam bahasa natural, dijawab oleh AI via Langflow
-- `/help` — tampilkan daftar command
+| Command | Deskripsi |
+|---|---|
+| `/freegames` | Tampilkan semua game gratis yang sedang tersedia |
+| `/freegames platform:<nama>` | Filter berdasarkan platform dengan **autocomplete** + **pagination** ◀▶ |
+| `/ask query:<pertanyaan>` | Tanya dalam bahasa natural, dijawab AI via Langflow |
+| `/search query:<kata kunci>` | Cari game spesifik menggunakan Web Search |
+| `/endingsoon [days:3]` | Giveaway yang hampir berakhir dalam N hari |
+| `/config channel` | *(Admin)* Set channel untuk notifikasi harian |
+| `/config notify` | *(Admin)* Aktifkan/nonaktifkan alert harian + atur jam WIB |
+| `/config status` | *(Admin)* Lihat konfigurasi bot saat ini |
+| `/help` | Tampilkan daftar command |
 
 ---
 
@@ -19,9 +26,10 @@ GameAtlas adalah Discord Bot berbasis AI yang membantu pengguna menemukan **game
 
 - **Runtime:** Node.js >= 18 + TypeScript
 - **Discord SDK:** discord.js v14
-- **AI Orchestration:** Langflow (HTTP API)
+- **AI Orchestration:** Langflow (HTTP API) — Gemini + Web Search + Structured Output
 - **Data Source:** GamerPower API (no key required)
 - **HTTP Client:** axios
+- **Scheduler:** node-cron (daily alert)
 - **Testing:** Jest + ts-jest
 
 ---
@@ -63,6 +71,7 @@ DISCORD_GUILD_ID=      # (Opsional) Guild ID untuk dev; kosongkan untuk global c
 LANGFLOW_SERVER_URL=http://localhost:7860
 LANGFLOW_API_KEY=      # API key dari instance Langflow
 LANGFLOW_FLOW_ID=      # Flow ID dari flow yang sudah dibuat di Langflow
+LANGFLOW_TIMEOUT_MS=150000  # Timeout dalam ms (default 150 detik, naikan jika flow lambat)
 
 # GamerPower (default sudah tersedia, tidak perlu diubah)
 GAMERPOWER_API_URL=https://www.gamerpower.com/api
@@ -86,13 +95,13 @@ npm run deploy-commands
 
 Output sukses:
 ```
-{"level":"info","message":"Registered 3 commands to guild YOUR_GUILD_ID"}
+{"level":"info","message":"Registered 6 commands to guild YOUR_GUILD_ID"}
 ```
 
 Jika `DISCORD_GUILD_ID` diisi → command langsung aktif di server tersebut (cocok untuk development).
 Jika `DISCORD_GUILD_ID` dikosongkan → command didaftarkan secara global (butuh ~1 jam propagasi).
 
-> Jalankan `deploy-commands` ulang setiap kali ada perubahan pada slash command.
+> Jalankan `deploy-commands` ulang setiap kali ada penambahan/perubahan command.
 
 ### 5. Jalankan bot
 
@@ -110,6 +119,7 @@ npm start
 Output sukses:
 ```
 {"level":"info","message":"Logged in as GameAtlas#XXXX"}
+{"level":"info","message":"Daily alert scheduler started"}
 ```
 
 ---
@@ -124,7 +134,7 @@ Output sukses:
 4. Di sidebar kiri klik **Bot** → klik **Add Bot**
 5. Klik **Reset Token** → salin token → itulah `DISCORD_TOKEN`
 
-> ⚠️ Token hanya ditampilkan sekali. Jangan share ke siapapun.
+> ⚠️ Token hanya ditampilkan sekali. Jangan share ke siapapun dan jangan commit ke Git.
 
 ### DISCORD_GUILD_ID
 
@@ -135,12 +145,22 @@ Output sukses:
 
 ## Langflow Setup
 
-GameAtlas menggunakan Langflow sebagai AI orchestration layer untuk command `/ask`. Command `/freegames` bekerja langsung tanpa Langflow.
+GameAtlas menggunakan Langflow sebagai AI orchestration layer. Command `/ask`, `/search`, dan `/endingsoon` semuanya melewati Langflow. Command `/freegames` bekerja langsung ke GamerPower tanpa Langflow.
 
-### Flow yang diperlukan
+### Flow yang direkomendasikan
 
 ```
-Chat Input → Prompt Template → AI Agent → Game Search Tool (GamerPower) → Chat Output
+Chat Input
+    ↓
+Prompt Template
+    ↓
+AI Agent ──── API Request (GamerPower)
+         ──── Web Search
+         ──── Current Date
+    ↓
+Structured Output
+    ↓
+Chat Output
 ```
 
 ### Prompt template yang direkomendasikan
@@ -148,7 +168,10 @@ Chat Input → Prompt Template → AI Agent → Game Search Tool (GamerPower) �
 ```
 Kamu adalah GameAtlas, AI assistant untuk mencari game gratis dan giveaway game.
 
-Pahami permintaan pengguna dan gunakan Game Search Tool untuk mendapatkan data terbaru.
+Pahami permintaan pengguna dan gunakan tool yang sesuai:
+- API Request → untuk data giveaway dari GamerPower
+- Web Search → untuk informasi tambahan (genre, system requirements, dll)
+- Current Date → untuk menghitung sisa waktu giveaway
 
 Prioritaskan informasi:
 - nama game
@@ -157,22 +180,43 @@ Prioritaskan informasi:
 - tanggal berakhir
 - nilai game jika tersedia
 - link klaim
+- genre (jika tersedia)
+- reason (alasan AI memilih game ini)
 
-Jangan mengarang data. Gunakan hanya data yang diberikan oleh tool.
+Jangan mengarang data. Gunakan hanya data dari tool.
 
 User request:
 {input}
 ```
 
-### Game Search Tool
+### Structured Output Schema
 
-Tool memanggil GamerPower API:
+Bot mengharapkan output dalam format JSON dengan struktur berikut:
 
+```json
+{
+  "results": [
+    {
+      "title": "Nama Game",
+      "platform": "Steam",
+      "type": "game",
+      "description": "Deskripsi singkat",
+      "worth": "$9.99",
+      "end_date": "2026-10-15",
+      "image_url": "https://...",
+      "claim_url": "https://...",
+      "genre": "RPG",
+      "reason": "Alasan AI memilih game ini"
+    }
+  ]
+}
 ```
-GET https://www.gamerpower.com/api/giveaways?platform={platform}
-```
 
-Setelah flow dibuat di Langflow, salin **Flow ID** ke `LANGFLOW_FLOW_ID` di `.env`.
+Bot juga mendukung format: array langsung `[{...}]`, single object `{...}`, atau wrapper key `games`, `data`, `items`, `giveaways`.
+
+### LANGFLOW_TIMEOUT_MS
+
+Flow dengan Web Search + AI reasoning bisa memakan waktu 60–120 detik. Default timeout adalah **150 detik**. Sesuaikan di `.env` jika diperlukan.
 
 ---
 
@@ -197,7 +241,7 @@ npm test
 Output sukses:
 ```
 Test Suites: 3 passed, 3 total
-Tests:       19 passed, 19 total
+Tests:       22 passed, 22 total
 ```
 
 ---
@@ -206,35 +250,60 @@ Tests:       19 passed, 19 total
 
 ```
 src/
-├── index.ts                     # Entry point — bot login & process handlers
-├── config.ts                    # Environment variable loader & validator
+├── index.ts                          # Entry point — bot login, scheduler start
+├── config.ts                         # Environment variable loader & validator
 ├── discord/
-│   ├── client.ts                # Discord client factory & command router
-│   ├── deployCommands.ts        # Slash command registration script
+│   ├── client.ts                     # Discord client factory, command & autocomplete router
+│   ├── deployCommands.ts             # Slash command registration script
+│   ├── constants/
+│   │   └── platforms.ts              # Daftar platform GamerPower (untuk autocomplete)
 │   ├── commands/
-│   │   ├── freegames.ts         # /freegames — ambil giveaway langsung dari GamerPower
-│   │   ├── ask.ts               # /ask — kirim query ke Langflow AI Agent
-│   │   └── help.ts              # /help — tampilkan daftar command
+│   │   ├── freegames.ts              # /freegames — GamerPower langsung, autocomplete, pagination
+│   │   ├── ask.ts                    # /ask — natural language via Langflow AI Agent
+│   │   ├── search.ts                 # /search — Web Search via Langflow
+│   │   ├── endingsoon.ts             # /endingsoon — giveaway hampir berakhir
+│   │   ├── config.ts                 # /config — admin setup channel & notifikasi
+│   │   └── help.ts                   # /help — daftar command
 │   └── formatters/
-│       └── gameEmbed.ts         # Discord Embed builder (game list, AI response, error)
+│       └── gameEmbed.ts              # Discord Embed builder (game list, structured, AI, error)
 ├── services/
-│   ├── langflow.ts              # sendMessageToLangflow() — Langflow HTTP API client
-│   └── gamerpower.ts            # getGiveaways() — GamerPower API client
+│   ├── langflow.ts                   # Langflow HTTP API client + JSON parser
+│   ├── gamerpower.ts                 # GamerPower API client
+│   ├── guildConfig.ts                # In-memory guild config store (channel, notify settings)
+│   └── scheduler.ts                  # node-cron daily alert scheduler
 └── utils/
-    ├── logger.ts                # Structured JSON logger
-    └── errors.ts                # Custom error classes (LangflowError, GamerPowerError, TimeoutError)
+    ├── logger.ts                     # Structured JSON logger
+    └── errors.ts                     # Custom error classes
 
 tests/
-├── langflow.test.ts             # Unit tests — Langflow service
-├── gamerpower.test.ts           # Unit tests — GamerPower service
-└── formatter.test.ts            # Unit tests — Discord Embed formatter
+├── langflow.test.ts                  # Unit tests — Langflow service + JSON parsing
+├── gamerpower.test.ts                # Unit tests — GamerPower service
+└── formatter.test.ts                 # Unit tests — Discord Embed formatter
 ```
+
+---
+
+## Daily Alert Setup
+
+Untuk mengaktifkan notifikasi game gratis harian otomatis di server Discord kamu:
+
+1. Pastikan bot sudah online
+2. Di Discord, jalankan (butuh permission **Manage Server**):
+   ```
+   /config channel channel:#free-games
+   /config notify enabled:true time:09:00
+   ```
+3. Setiap hari pukul 09:00 WIB, bot akan mengirim daftar game gratis terbaru ke channel tersebut
+4. Cek status konfigurasi dengan `/config status`
+5. Nonaktifkan dengan `/config notify enabled:false`
+
+> **Catatan:** Konfigurasi disimpan **in-memory** dan akan reset saat bot restart. Untuk persistensi permanen, integrate dengan database seperti SQLite.
 
 ---
 
 ## Supported Platforms (GamerPower)
 
-`steam` · `epic-games-store` · `gog` · `xbox` · `ps4` · `switch` · `android` · `ios` · `itchio` · `battlenet` · `origin` · `ubisoft`
+`steam` · `epic-games-store` · `gog` · `xbox` · `ps4` · `ps5` · `switch` · `android` · `ios` · `itchio` · `battlenet` · `origin` · `ubisoft`
 
 ---
 
@@ -244,8 +313,9 @@ tests/
 |---|---|
 | Langflow tidak tersedia | "Maaf, GameAtlas sedang tidak dapat memproses permintaan." |
 | GamerPower API gagal | "Sumber data game sedang tidak dapat diakses." |
-| Timeout | "Permintaan habis waktu. Coba lagi beberapa saat." |
+| Timeout (> 150 detik) | "Permintaan habis waktu. Coba lagi beberapa saat." |
 | Tidak ada hasil | "Belum menemukan giveaway yang sesuai." |
+| Langflow JSON tidak dikenali | Fallback ke plain text embed |
 
 ---
 
@@ -257,6 +327,18 @@ Data giveaway disediakan oleh **[GamerPower](https://www.gamerpower.com)**. Sesu
 
 ## Changelog
 
+### v1.1.0
+- Tambah command `/search` — cari game via Web Search Langflow
+- Tambah command `/endingsoon` — giveaway hampir berakhir
+- Tambah command `/config` — admin setup channel & notifikasi harian
+- Autocomplete platform di `/freegames` dan `/search`
+- Pagination ◀▶ di `/freegames` untuk hasil lebih dari 5
+- Daily alert scheduler dengan `node-cron`
+- Upgrade Discord Embed: gambar per game, tanggal friendly, field `reason` dari AI
+- Timeout Langflow dinaikkan ke 150 detik (configurable via `LANGFLOW_TIMEOUT_MS`)
+- Handle semua format JSON output Langflow (plain, array, `results`, `games`, `data`, dll)
+- Strip markdown code block dari response Langflow sebelum parsing
+
 ### v1.0.0
 - Initial release
 - `/freegames` command dengan filter platform
@@ -265,7 +347,7 @@ Data giveaway disediakan oleh **[GamerPower](https://www.gamerpower.com)**. Sesu
 - GamerPower API integration
 - Discord Embed formatting dengan claim buttons
 - Structured JSON logging
-- Unit tests (19 tests passing)
+- Unit tests (22 tests passing)
 - Error handling untuk Langflow, GamerPower, dan timeout
 
 ---
