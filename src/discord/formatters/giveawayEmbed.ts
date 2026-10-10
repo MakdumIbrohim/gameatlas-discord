@@ -51,10 +51,11 @@ export function buildGameEmbed(
   slice.forEach((game, index) => {
     const num = index + 1;
     const endInfo = formatEndDate(game.end_date);
-    const worth =
-      game.worth && game.worth !== 'N/A' && game.worth !== 'null'
-        ? ` • ${ANIMATED_EMOJIS.COIN} **${game.worth}**`
-        : '';
+    const hasWorth =
+      game.worth && game.worth !== 'N/A' && game.worth !== 'null';
+    const worthLine = hasWorth
+      ? `> ${ANIMATED_EMOJIS.COIN} **Harga Asli:** ~~${game.worth}~~ (Gratis)`
+      : `> ${ANIMATED_EMOJIS.COIN} **Harga:** Gratis`;
     const claimLink = game.open_giveaway_url
       ? `[Klaim di sini](${game.open_giveaway_url})`
       : '';
@@ -64,10 +65,11 @@ export function buildGameEmbed(
       value:
         [
           `> ${ANIMATED_EMOJIS.LAPTOP} **Platform:** \`${game.platforms}\``,
-          `> ${ANIMATED_EMOJIS.PRESENT} **Tipe:** ${formatTypeLabel(game.type)}`,
-          `> ${ANIMATED_EMOJIS.CALENDAR} **Gratis sampe:** ${endInfo}${worth}`,
+          `> **Tipe:** ${formatTypeLabel(game.type)}`,
+          worthLine,
+          `> ${ANIMATED_EMOJIS.CALENDAR} **Masa Berlaku:** ${endInfo}`,
           claimLink
-            ? `> ${ANIMATED_EMOJIS.LINK} **Direct Link:** ${claimLink}`
+            ? `> ${ANIMATED_EMOJIS.LINK} **Link Klaim:** ${claimLink}`
             : '',
         ]
           .filter(Boolean)

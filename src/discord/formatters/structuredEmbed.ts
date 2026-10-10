@@ -24,11 +24,11 @@ export function buildSingleGameEmbed(
 
   const lines: string[] = [
     `${ANIMATED_EMOJIS.LAPTOP} **Platform:** ${game.platform}`,
-    `${formatTypeLabel(game.type)}`,
+    `**Tipe:** ${formatTypeLabel(game.type)}`,
     game.worth && game.worth !== 'N/A' && game.worth !== 'null'
-      ? `${ANIMATED_EMOJIS.COIN} **Harga asli:** ${game.worth}`
-      : '',
-    formatEndDateFriendly(game.end_date),
+      ? `${ANIMATED_EMOJIS.COIN} **Harga Asli:** ~~${game.worth}~~ (Gratis)`
+      : `${ANIMATED_EMOJIS.COIN} **Harga:** Gratis`,
+    `**Masa Berlaku:** ${formatEndDateFriendly(game.end_date)}`,
   ];
 
   const desc =
