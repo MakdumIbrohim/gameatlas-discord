@@ -31,7 +31,7 @@ export function buildGameEmbed(
       .setTitle(title)
       .setDescription('Belum menemukan giveaway yang cocok nih!\nCoba cek platform atau keyword lain ya.')
       .setColor(0xe74c3c)
-      .setThumbnail(GIF_ICONS.SEARCH)
+      .setThumbnail(GIF_ICONS.EMPTY)
       .setFooter({ text: 'Powered by GamerPower • gameratlas.gg' })
       .setTimestamp();
 
@@ -149,7 +149,7 @@ function buildSingleGameEmbed(game: LangflowGameResult, index: number, total: nu
 export function buildStructuredGameEmbed(games: LangflowGameResult[]): StructuredEmbedResult {
   if (games.length === 0) {
     return {
-      embeds: [buildErrorEmbed('Belum menemukan giveaway yang cocok nih!\nCoba ganti platform atau kata kunci lain ya.')],
+      embeds: [buildEmptyEmbed('Belum menemukan giveaway yang cocok nih!\nCoba ganti platform atau kata kunci lain ya.')],
       components: [],
     };
   }
@@ -193,6 +193,15 @@ export function buildAiResponseEmbed(aiText: string): EmbedBuilder {
     .setColor(0x3498db)
     .setThumbnail(GIF_ICONS.AI)
     .setFooter({ text: `Source: GamerPower (${GAMERPOWER_URL})` })
+    .setTimestamp();
+}
+
+export function buildEmptyEmbed(message: string): EmbedBuilder {
+  return new EmbedBuilder()
+    .setTitle('🔎 GameAtlas')
+    .setDescription(message)
+    .setColor(0xf39c12)
+    .setThumbnail(GIF_ICONS.EMPTY)
     .setTimestamp();
 }
 

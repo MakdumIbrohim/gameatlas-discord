@@ -8,7 +8,7 @@ import {
   SlashCommandBuilder,
 } from 'discord.js';
 import { getGiveaways, Giveaway } from '../../services/gamerpower';
-import { buildGameEmbed, buildErrorEmbed } from '../formatters/gameEmbed';
+import { buildGameEmbed, buildEmptyEmbed, buildErrorEmbed } from '../formatters/gameEmbed';
 import { logger } from '../../utils/logger';
 import { GamerPowerError, TimeoutError } from '../../utils/errors';
 import { PLATFORMS } from '../constants/platforms';
@@ -74,7 +74,7 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
     if (giveaways.length === 0) {
       await interaction.editReply({
         content: null,
-        embeds: [buildErrorEmbed('Belum menemukan giveaway yang cocok nih!\nCoba cek platform atau keyword lain ya.')],
+        embeds: [buildEmptyEmbed('Belum menemukan giveaway yang cocok nih!\nCoba cek platform atau keyword lain ya.')],
       });
       return;
     }

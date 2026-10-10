@@ -1,9 +1,8 @@
 export const GIF_ICONS = {
-  GAME: 'https://i.giphy.com/media/LmNwrBhejkK9EFP504/200w.gif',
-  AI: 'https://i.giphy.com/media/du3J3cXyzhj75IOgvA/200w.gif',
-  ERROR: 'https://i.giphy.com/media/3o7aD2saalBwwftBIY/200w.gif',
-  ALERT: 'https://i.giphy.com/media/3oz8xAFtqoOUUrsh7W/200w.gif',
-  HELP: 'https://i.giphy.com/media/26n6WywJyh39n1pBu/200w.gif',
-  CONFIG: 'https://i.giphy.com/media/3o7abKhOpu0NwenH3O/200w.gif',
-  SEARCH: 'https://i.giphy.com/media/l378AEZceMwWboAQE/200w.gif',
+  GAME: 'https://cdn3.emoji.gg/emojis/337500-gamingcontroller.gif',
+  AI: 'https://cdn3.emoji.gg/emojis/280267-lightbulb.gif',
+  EMPTY: 'https://cdn3.emoji.gg/emojis/955026-animated-search-lm.gif',
+  ERROR: 'https://cdn3.emoji.gg/emojis/407265-yellow-siren.gif',
+  ALERT: 'https://cdn3.emoji.gg/emojis/707793-redbell.gif',
+  CONFIG: 'https://cdn3.emoji.gg/emojis/957955-purplegear.gif',
 } as const;
