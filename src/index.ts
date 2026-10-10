@@ -1,8 +1,13 @@
 import { config } from './config';
 import { createClient } from './discord/client';
+import { startDailyAlertScheduler } from './services/scheduler';
 import { logger } from './utils/logger';
 
 const client = createClient();
+
+client.once('clientReady', () => {
+  startDailyAlertScheduler(client);
+});
 
 client.login(config.discord.token).catch((err) => {
   logger.error('Failed to log in to Discord', { error: String(err) });
