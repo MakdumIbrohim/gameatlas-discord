@@ -46,24 +46,40 @@ function extractJson(text: string): string {
   return trimmed;
 }
 
+function extractGamesFromParsed(parsed: unknown): LangflowGameResult[] | null {
+  if (!parsed || typeof parsed !== 'object') return null;
+
+  // Array langsung: [ { title, platform, ... }, ... ]
+  if (Array.isArray(parsed)) {
+    return parsed as LangflowGameResult[];
+  }
+
+  const obj = parsed as Record<string, unknown>;
+
+  // { "title": "...", "platform": "..." } — single game
+  if ('title' in obj) {
+    return [obj as unknown as LangflowGameResult];
+  }
+
+  // Berbagai wrapper key yang mungkin dipakai Langflow Structured Output
+  for (const key of ['results', 'games', 'data', 'items', 'giveaways']) {
+    if (key in obj && Array.isArray(obj[key])) {
+      return obj[key] as LangflowGameResult[];
+    }
+  }
+
+  return null;
+}
+
 function parseStructuredOutput(text: string): LangflowResult {
   const candidate = extractJson(text);
 
-  // Coba parse sebagai JSON object tunggal atau array
   if (candidate.startsWith('{') || candidate.startsWith('[')) {
     try {
       const parsed = JSON.parse(candidate);
-      // Array of games
-      if (Array.isArray(parsed)) {
-        return { kind: 'structured', games: parsed as LangflowGameResult[] };
-      }
-      // Single game object
-      if (parsed && typeof parsed === 'object' && 'title' in parsed) {
-        return { kind: 'structured', games: [parsed as LangflowGameResult] };
-      }
-      // Object dengan key "games"
-      if (parsed && typeof parsed === 'object' && 'games' in parsed && Array.isArray(parsed.games)) {
-        return { kind: 'structured', games: parsed.games as LangflowGameResult[] };
+      const games = extractGamesFromParsed(parsed);
+      if (games && games.length > 0) {
+        return { kind: 'structured', games };
       }
     } catch {
       // bukan JSON valid, fallback ke text
