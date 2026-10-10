@@ -1,6 +1,7 @@
 import { config } from './config';
 import { createClient } from './discord/client';
 import { startDailyAlertScheduler } from './services/scheduler';
+import { closeDb } from './services/database';
 import { logger } from './utils/logger';
 
 const client = createClient();
@@ -20,5 +21,18 @@ process.on('unhandledRejection', (err) => {
 
 process.on('uncaughtException', (err) => {
   logger.error('Uncaught exception', { error: err.message, stack: err.stack });
+  closeDb();
   process.exit(1);
+});
+
+process.on('SIGTERM', () => {
+  logger.info('SIGTERM received, shutting down gracefully');
+  closeDb();
+  process.exit(0);
+});
+
+process.on('SIGINT', () => {
+  logger.info('SIGINT received, shutting down gracefully');
+  closeDb();
+  process.exit(0);
 });

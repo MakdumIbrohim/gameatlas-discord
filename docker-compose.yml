@@ -10,9 +10,16 @@ services:
       - .env
     environment:
       - NODE_ENV=production
+      - DB_PATH=/app/data/gameatlas.db
+    volumes:
+      # Persist SQLite database across container restarts
+      - gameatlas-data:/app/data
     # No ports needed — bot uses outbound connections only
     logging:
       driver: json-file
       options:
         max-size: "10m"
         max-file: "3"
+
+volumes:
+  gameatlas-data:

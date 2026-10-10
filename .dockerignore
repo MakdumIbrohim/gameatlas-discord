@@ -7,3 +7,4 @@ tests/
 README.md
 docker-compose.yml
 .env.example
+data/
