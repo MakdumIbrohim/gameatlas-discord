@@ -34,13 +34,25 @@ export type LangflowResult =
   | { kind: 'structured'; games: LangflowGameResult[] }
   | { kind: 'text'; text: string };
 
-function parseStructuredOutput(text: string): LangflowResult {
+function extractJson(text: string): string {
   const trimmed = text.trim();
 
+  // Strip markdown code block: ```json ... ``` atau ``` ... ```
+  const codeBlockMatch = trimmed.match(/^```(?:json)?\s*\n?([\s\S]*?)\n?```$/);
+  if (codeBlockMatch?.[1]) {
+    return codeBlockMatch[1].trim();
+  }
+
+  return trimmed;
+}
+
+function parseStructuredOutput(text: string): LangflowResult {
+  const candidate = extractJson(text);
+
   // Coba parse sebagai JSON object tunggal atau array
-  if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+  if (candidate.startsWith('{') || candidate.startsWith('[')) {
     try {
-      const parsed = JSON.parse(trimmed);
+      const parsed = JSON.parse(candidate);
       // Array of games
       if (Array.isArray(parsed)) {
         return { kind: 'structured', games: parsed as LangflowGameResult[] };

@@ -65,7 +65,7 @@ describe('sendMessageToLangflow', () => {
     );
   });
 
-  it('returns structured result when response is JSON with title field', async () => {
+  it('returns structured result when response is plain JSON with title field', async () => {
     const jsonResponse = {
       data: {
         outputs: [{ outputs: [{ results: { message: { text: JSON.stringify({ title: 'Test Game', platform: 'Steam', type: 'game' }) } } }] }],
@@ -77,6 +77,24 @@ describe('sendMessageToLangflow', () => {
     expect(result.kind).toBe('structured');
     if (result.kind === 'structured') {
       expect(result.games[0]?.title).toBe('Test Game');
+    }
+  });
+
+  it('returns structured result when Langflow wraps JSON in markdown code block', async () => {
+    const game = { title: 'Dwarven Realms', platform: 'PC, Steam', type: 'game', worth: '$9.99' };
+    const wrappedJson = `\`\`\`json\n${JSON.stringify(game)}\n\`\`\``;
+    const jsonResponse = {
+      data: {
+        outputs: [{ outputs: [{ results: { message: { text: wrappedJson } } }] }],
+      },
+    };
+    mockedAxios.post.mockResolvedValueOnce(jsonResponse);
+
+    const result = await sendMessageToLangflow('Cari game gratis Steam', 'discord-123');
+    expect(result.kind).toBe('structured');
+    if (result.kind === 'structured') {
+      expect(result.games[0]?.title).toBe('Dwarven Realms');
+      expect(result.games[0]?.worth).toBe('$9.99');
     }
   });
 
