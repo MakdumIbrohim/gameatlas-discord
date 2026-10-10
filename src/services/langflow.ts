@@ -28,6 +28,7 @@ export interface LangflowGameResult {
   open_giveaway_url?: string;
   genre?: string;
   system_requirements?: string;
+  reason?: string;
 }
 
 export type LangflowResult =

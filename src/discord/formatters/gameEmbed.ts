@@ -77,6 +77,71 @@ export interface StructuredEmbedResult {
   components: ActionRowBuilder<ButtonBuilder>[];
 }
 
+const TYPE_LABEL: Record<string, string> = {
+  game: '🎮 Full Game',
+  loot: '🎁 In-Game Loot / DLC',
+  beta: '🧪 Beta Access',
+  dlc: '🎁 DLC',
+  early_access: '🚀 Early Access',
+};
+
+function formatTypeLabel(type: string): string {
+  return TYPE_LABEL[type.toLowerCase()] ?? `🎁 ${type}`;
+}
+
+function formatEndDateFriendly(endDate?: string): string {
+  if (!endDate || endDate === 'N/A' || endDate === 'null') return '♾️ Masih aktif';
+  const end = new Date(endDate);
+  if (isNaN(end.getTime())) return `📅 ${endDate}`;
+  const now = new Date();
+  const diffMs = end.getTime() - now.getTime();
+  if (diffMs <= 0) return '⚠️ Segera berakhir';
+  const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+  const dateStr = end.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+  if (diffDays === 1) return `⏳ Berakhir besok (${dateStr})`;
+  return `⏳ ${diffDays} hari lagi — ${dateStr}`;
+}
+
+function buildSingleGameEmbed(game: LangflowGameResult, index: number, total: number): EmbedBuilder {
+  const claimUrl = game.claim_url ?? game.open_giveaway_url;
+
+  const lines: string[] = [
+    `🖥️ **Platform:** ${game.platform}`,
+    `${formatTypeLabel(game.type)}`,
+    game.worth && game.worth !== 'N/A' && game.worth !== 'null'
+      ? `💰 **Nilai:** ${game.worth}`
+      : '',
+    formatEndDateFriendly(game.end_date),
+  ];
+
+  // Deskripsi — skip kalau sama persis dengan judul
+  const desc = game.description && game.description !== game.title
+    ? game.description.slice(0, 150) + (game.description.length > 150 ? '...' : '')
+    : null;
+  if (desc) lines.push(`\n📝 ${desc}`);
+
+  // Alasan dari AI
+  if (game.reason) lines.push(`\n💡 *${game.reason}*`);
+
+  const embed = new EmbedBuilder()
+    .setTitle(game.title)
+    .setDescription(lines.filter(Boolean).join('\n'))
+    .setColor(0x2ecc71)
+    .setFooter({ text: `${index + 1} of ${total} • Source: GamerPower (${GAMERPOWER_URL})` })
+    .setTimestamp();
+
+  // Thumbnail cover art per game
+  if (game.image_url && game.image_url !== 'null') {
+    embed.setImage(game.image_url);
+  }
+
+  if (claimUrl) {
+    embed.setURL(claimUrl);
+  }
+
+  return embed;
+}
+
 export function buildStructuredGameEmbed(games: LangflowGameResult[]): StructuredEmbedResult {
   if (games.length === 0) {
     return {
@@ -86,54 +151,34 @@ export function buildStructuredGameEmbed(games: LangflowGameResult[]): Structure
   }
 
   const slice = games.slice(0, 5);
-  const embed = new EmbedBuilder()
+
+  // Header embed ringkas
+  const header = new EmbedBuilder()
     .setTitle('🎮 GameAtlas — Free Games')
-    .setColor(0x2ecc71)
-    .setFooter({ text: `Source: GamerPower (${GAMERPOWER_URL}) • Showing ${slice.length} of ${games.length}` })
-    .setTimestamp();
+    .setDescription(`Ditemukan **${games.length}** giveaway aktif. Menampilkan ${slice.length} teratas.`)
+    .setColor(0x3498db);
 
-  // Tampilkan thumbnail dari game pertama
-  const firstImage = slice[0]?.image_url;
-  if (firstImage) {
-    embed.setThumbnail(firstImage);
-  }
+  // Satu embed per game agar thumbnail tampil
+  const gameEmbeds = slice.map((game, i) => buildSingleGameEmbed(game, i, slice.length));
 
-  const rows: ActionRowBuilder<ButtonBuilder>[] = [];
+  // Satu row berisi semua claim button
+  const buttons = slice
+    .map((game) => {
+      const claimUrl = game.claim_url ?? game.open_giveaway_url;
+      if (!claimUrl) return null;
+      return new ButtonBuilder()
+        .setLabel(game.title.slice(0, 40))
+        .setURL(claimUrl)
+        .setStyle(ButtonStyle.Link);
+    })
+    .filter((b): b is ButtonBuilder => b !== null)
+    .slice(0, 5);
 
-  slice.forEach((game, index) => {
-    const num = index + 1;
-    const endDate = game.end_date && game.end_date !== 'N/A' ? game.end_date : 'Masih aktif';
-    const worth = game.worth && game.worth !== 'N/A' ? ` • Worth: ${game.worth}` : '';
-    const genre = game.genre ? `\n🏷️ **Genre:** ${game.genre}` : '';
-    const sysReq = game.system_requirements ? `\n💻 **System Req:** ${game.system_requirements.slice(0, 100)}` : '';
-    const desc = game.description ? `\n📝 ${game.description.slice(0, 120)}${game.description.length > 120 ? '...' : ''}` : '';
+  const components: ActionRowBuilder<ButtonBuilder>[] = buttons.length > 0
+    ? [new ActionRowBuilder<ButtonBuilder>().addComponents(buttons)]
+    : [];
 
-    embed.addFields({
-      name: `${num}. ${game.title}`,
-      value: [
-        `🖥️ **Platform:** ${game.platform}`,
-        `🎁 **Type:** ${game.type}`,
-        `⏳ **Free until:** ${endDate}${worth}`,
-        genre,
-        sysReq,
-        desc,
-      ].filter(Boolean).join('\n'),
-    });
-
-    const claimUrl = game.claim_url ?? game.open_giveaway_url;
-    if (claimUrl) {
-      rows.push(
-        new ActionRowBuilder<ButtonBuilder>().addComponents(
-          new ButtonBuilder()
-            .setLabel(`Claim: ${game.title.slice(0, 40)}`)
-            .setURL(claimUrl)
-            .setStyle(ButtonStyle.Link),
-        ),
-      );
-    }
-  });
-
-  return { embeds: [embed], components: rows.slice(0, 5) };
+  return { embeds: [header, ...gameEmbeds], components };
 }
 
 export function buildAiResponseEmbed(aiText: string): EmbedBuilder {
