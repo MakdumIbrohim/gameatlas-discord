@@ -116,10 +116,68 @@ npm run build
 npm start
 ```
 
+**Production dengan Docker:**
+```bash
+docker compose up -d
+```
+
 Output sukses:
 ```
 {"level":"info","message":"Logged in as GameAtlas#XXXX"}
 {"level":"info","message":"Daily alert scheduler started"}
+```
+
+---
+
+## Docker
+
+### Prasyarat
+- Docker >= 24
+- Docker Compose >= 2
+
+### Jalankan dengan Docker Compose
+
+```bash
+# Pastikan .env sudah diisi
+cp .env.example .env
+# edit .env ...
+
+# Build dan jalankan
+docker compose up -d
+
+# Lihat logs
+docker compose logs -f
+
+# Stop
+docker compose down
+```
+
+### Build manual (tanpa Compose)
+
+```bash
+# Build image
+docker build -t gameatlas-bot .
+
+# Jalankan container
+docker run -d \
+  --name gameatlas-bot \
+  --restart unless-stopped \
+  --env-file .env \
+  gameatlas-bot
+```
+
+### Deploy commands di dalam Docker
+
+```bash
+docker run --rm --env-file .env gameatlas-bot \
+  node -e "require('./dist/discord/deployCommands')"
+```
+
+Atau lebih mudah, jalankan deploy-commands **sebelum** build Docker:
+
+```bash
+npm run deploy-commands   # jalankan sekali dari lokal
+docker compose up -d      # lalu deploy container
 ```
 
 ---
